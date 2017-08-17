@@ -27,22 +27,22 @@ class XmppBot extends Adapter
     do @checkCanStart
 
     options =
-      username: process.env.HUBOT_XMPP_USERNAME
+      username: 'bot@chatbot.airbus.com'
       password: '********'
-      host: process.env.HUBOT_XMPP_HOST
-      port: process.env.HUBOT_XMPP_PORT
-      rooms: @parseRooms process.env.HUBOT_XMPP_ROOMS.split(',')
+      host: '10.78.65.110'
+      port: 5222
+      rooms: @parseRooms "chatbot@conference.chatbot.airbus.com".split(',')
       # ms interval to send whitespace to xmpp server
       keepaliveInterval: process.env.HUBOT_XMPP_KEEPALIVE_INTERVAL || 30000
       reconnectTry: process.env.HUBOT_XMPP_RECONNECT_TRY || 5
       reconnectWait: process.env.HUBOT_XMPP_RECONNECT_WAIT || 5000
       legacySSL: process.env.HUBOT_XMPP_LEGACYSSL
-      preferredSaslMechanism: process.env.HUBOT_XMPP_PREFERRED_SASL_MECHANISM
-      disallowTLS: process.env.HUBOT_XMPP_DISALLOW_TLS
+      preferredSaslMechanism: ''
+      disallowTLS: 0
       pmAddPrefix: process.env.HUBOT_XMPP_PM_ADD_PREFIX
 
     @robot.logger.info util.inspect(options)
-    options.password = process.env.HUBOT_XMPP_PASSWORD
+    options.password = 'chatbot'
 
     @options = options
     @connected = false
@@ -76,7 +76,7 @@ class XmppBot extends Adapter
       host: options.host
       port: options.port
       legacySSL: options.legacySSL
-      preferred: options.preferredSaslMechanism
+      preferredSaslMechanism: options.preferredSaslMechanism
       disallowTLS: options.disallowTLS
     @configClient(options)
 
@@ -107,6 +107,7 @@ class XmppBot extends Adapter
     presence.c('nick', xmlns: 'http://jabber.org/protocol/nick').t(@robot.name)
     @client.send presence
     @robot.logger.info 'Hubot XMPP sent initial presence'
+
 
     @joinRoom room for room in @options.rooms
 
@@ -278,31 +279,24 @@ class XmppBot extends Adapter
       # The resource is not the user's alias but the unique client
       # ID which is often the machine name
       [user] = from.split '@'
+
+      user = user
+
       # Not from a room
-      room = undefined
+      room = "undefined"
       # Also store the private JID so we can use it in the send method
       privateChatJID = from
+
       # For private messages, make the commands work even when they are not prefixed with hubot name or alias
       if @options.pmAddPrefix and
           message.slice(0, @robot.name.length).toLowerCase() != @robot.name.toLowerCase() and
           message.slice(0, process.env.HUBOT_ALIAS?.length).toLowerCase() != process.env.HUBOT_ALIAS?.toLowerCase()
         message = "#{@robot.name} #{message}"
 
-    # note that 'user' isn't a full JID in case of group chat,
-    # just the local user part
-    # FIXME Not sure it's a good idea to use the groupchat JID resource part
-    # as two users could have the same resource in two different rooms.
-    # I leave it as-is for backward compatiblity. A better idea would
-    # be to use the full groupchat JID.
     user = @robot.brain.userForId user
     user.type = stanza.attrs.type
     user.room = room
     user.privateChatJID = privateChatJID if privateChatJID
-
-    # only process persistent chant messages if we have matched a join
-    return if process.env.HUBOT_XMPP_UUID_ON_JOIN? and stanza.attrs.type == 'groupchat' and user.room not in @joined
-
-    @robot.logger.debug "Received message: #{message} in room: #{user.room}, from: #{user.name}. Private chat JID is #{user.privateChatJID}"
 
     @receive new TextMessage(user, message)
 
@@ -409,10 +403,8 @@ class XmppBot extends Adapter
       return true if joined.jid.toUpperCase() == room.toUpperCase()
     return false
 
-  send: (envelope, messages...) ->
-    for msg in messages
-      @robot.logger.debug "Sending to #{envelope.room}: #{msg}"
-
+  send: (envelope, strings...) ->
+    for msg in strings
       to = envelope.room
       if envelope.user?.type in ['direct', 'chat']
         to = envelope.user.privateChatJID ? "#{envelope.room}/#{envelope.user.name}"
@@ -427,13 +419,20 @@ class XmppBot extends Adapter
         type: envelope.user?.type or 'groupchat'
 
       if msg instanceof Element
+
         message = msg.root()
         message.attrs.to ?= params.to
         message.attrs.type ?= params.type
       else
+
+        # parsedMsg = try parse(msg)
         parsedMsg = try parse(msg)
+
+
+
         bodyMsg   = new Stanza('message', params).
                     c('body').t(msg)
+
         message   = if parsedMsg?
                       bodyMsg.up().
                       c('html',{xmlns:'http://jabber.org/protocol/xhtml-im'}).
@@ -466,12 +465,12 @@ class XmppBot extends Adapter
     @robot.logger.debug "Received offline event"
 
   checkCanStart: =>
-    if not process.env.HUBOT_XMPP_USERNAME
-      throw new Error("HUBOT_XMPP_USERNAME is not defined; try: export HUBOT_XMPP_USERNAME='user@xmpp.service'")
-    else if not process.env.HUBOT_XMPP_PASSWORD
-      throw new Error("HUBOT_XMPP_PASSWORD is not defined; try: export HUBOT_XMPP_PASSWORD='password'")
-    else if not process.env.HUBOT_XMPP_ROOMS
-      throw new Error("HUBOT_XMPP_ROOMS is not defined: try: export HUBOT_XMPP_ROOMS='room@conference.xmpp.service'")
+    # if not process.env.HUBOT_XMPP_USERNAME
+    #   throw new Error("HUBOT_XMPP_USERNAME is not defined; try: export HUBOT_XMPP_USERNAME='user@xmpp.service'")
+    # else if not process.env.HUBOT_XMPP_PASSWORD
+    #   throw new Error("HUBOT_XMPP_PASSWORD is not defined; try: export HUBOT_XMPP_PASSWORD='password'")
+    # else if not process.env.HUBOT_XMPP_ROOMS
+    #   throw new Error("HUBOT_XMPP_ROOMS is not defined: try: export HUBOT_XMPP_ROOMS='room@conference.xmpp.service'")
 
 exports.use = (robot) ->
   new XmppBot robot
