@@ -27,10 +27,10 @@ class XmppBot extends Adapter
     do @checkCanStart
 
     options =
-      username: 'bot@chatbot.airbus.com'
+      username: process.env.HUBOT_XMPP_USERNAME
       password: '********'
-      host: '10.78.65.110'
-      port: 5222
+      host: process.env.HUBOT_XMPP_HOST
+      port: process.env.HUBOT_XMPP_PORT
       rooms: @parseRooms "chatbot@conference.chatbot.airbus.com".split(',')
       # ms interval to send whitespace to xmpp server
       keepaliveInterval: process.env.HUBOT_XMPP_KEEPALIVE_INTERVAL || 30000
@@ -405,9 +405,16 @@ class XmppBot extends Adapter
 
   send: (envelope, strings...) ->
     for msg in strings
-      to = envelope.room
-      if envelope.user?.type in ['direct', 'chat']
-        to = envelope.user.privateChatJID ? "#{envelope.room}/#{envelope.user.name}"
+      to = ""
+      if msg instanceof Object && msg.to
+        to = msg.to
+      else
+        to = envelope.room
+
+        if envelope.user?.type in ['direct', 'chat']
+          to = envelope.user.privateChatJID ? "#{envelope.room}/#{envelope.user.name}"
+
+      #to = envelope.room
 
       params =
         # Send a real private chat if we know the real private JID,
@@ -429,9 +436,14 @@ class XmppBot extends Adapter
         parsedMsg = try parse(msg)
 
 
+        messageBody = ""
+        if msg instanceof Object && msg.text
+          messageBody = msg.text
+        else
+          messageBody = msg
 
         bodyMsg   = new Stanza('message', params).
-                    c('body').t(msg)
+                    c('body').t(messageBody)
 
         message   = if parsedMsg?
                       bodyMsg.up().
