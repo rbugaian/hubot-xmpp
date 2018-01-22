@@ -43,7 +43,7 @@ class XmppBot extends Adapter
       pmAddPrefix: process.env.HUBOT_XMPP_PM_ADD_PREFIX
 
     @robot.logger.info util.inspect(options)
-    options.password = 'chatbot'
+    options.password = process.env.HUBOT_XMPP_PASSWORD
 
     @options = options
     @connected = false
