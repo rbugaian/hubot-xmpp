@@ -496,5 +496,4 @@ class XmppBot extends Adapter
     # else if not process.env.HUBOT_XMPP_ROOMS
     #   throw new Error("HUBOT_XMPP_ROOMS is not defined: try: export HUBOT_XMPP_ROOMS='room@conference.xmpp.service'")
 
-exports.use = (robot) ->
-  new XmppBot robot
+exports.use = (robot) -> new XmppBot(robot)
