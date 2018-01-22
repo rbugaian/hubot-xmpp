@@ -10,11 +10,22 @@ class XmppBot extends Adapter
   joining: []
   joined: []
 
-  constructor: ( robot ) ->
-    super()
-    this.robot = robot
+  # constructor: ( robot ) ->
+  #   super()
+  #   this.robot = robot
     #@robot = robot
 
+    # # Flag to log a warning message about group chat configuration only once
+    # @anonymousGroupChatWarningLogged = false
+
+    # # Store the room JID to private JID map.
+    # # Key is the room JID, value is the private JID
+    # @roomToPrivateJID = {}
+
+    # # http://stackoverflow.com/a/646643
+    # String::startsWith ?= (s) -> @slice(0, s.length) == s
+
+  run: ->
     # Flag to log a warning message about group chat configuration only once
     @anonymousGroupChatWarningLogged = false
 
@@ -25,7 +36,6 @@ class XmppBot extends Adapter
     # http://stackoverflow.com/a/646643
     String::startsWith ?= (s) -> @slice(0, s.length) == s
 
-  run: ->
     do @checkCanStart
 
     options =
