@@ -11,9 +11,9 @@ class XmppBot extends Adapter
   joined: []
 
   constructor: ( robot ) ->
-    super()
+    #super()
     this.robot = robot
-    @robot = robot
+    #@robot = robot
 
     # Flag to log a warning message about group chat configuration only once
     @anonymousGroupChatWarningLogged = false
