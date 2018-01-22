@@ -11,7 +11,7 @@ class XmppBot extends Adapter
   joined: []
 
   constructor: ( robot ) ->
-    #super()
+    super()
     this.robot = robot
     #@robot = robot
 
