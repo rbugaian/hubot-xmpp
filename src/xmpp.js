@@ -60,7 +60,7 @@ XmppBot = (function(superClass) {
       password: process.env.HUBOT_XMPP_PASSWORD,
       host: process.env.HUBOT_XMPP_HOST || "127.0.0.1",
       port: process.env.HUBOT_XMPP_PORT || 5222,
-      rooms: this.parseRooms("chatbot@conference.chatbot.airbus.com".split(',')),
+      rooms: this.parseRooms("chatbot@conference.chatbot.altran.de".split(',')),
       keepaliveInterval: process.env.HUBOT_XMPP_KEEPALIVE_INTERVAL || 30000,
       reconnectTry: process.env.HUBOT_XMPP_RECONNECT_TRY || 5,
       reconnectWait: process.env.HUBOT_XMPP_RECONNECT_WAIT || 5000,
