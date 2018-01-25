@@ -65,7 +65,7 @@ XmppBot = (function(superClass) {
       reconnectTry: process.env.HUBOT_XMPP_RECONNECT_TRY || 5,
       reconnectWait: process.env.HUBOT_XMPP_RECONNECT_WAIT || 5000,
       legacySSL: process.env.HUBOT_XMPP_LEGACYSSL,
-      preferredSaslMechanism: '',
+      preferredSaslMechanism: 'PLAIN',
       disallowTLS: 0,
       pmAddPrefix: process.env.HUBOT_XMPP_PM_ADD_PREFIX
     };
