@@ -57,7 +57,7 @@ XmppBot = (function(superClass) {
     this.checkCanStart();
     options = {
       username: process.env.HUBOT_XMPP_USERNAME,
-      password: '********',
+      password: process.env.HUBOT_XMPP_PASSWORD,
       host: process.env.HUBOT_XMPP_HOST || "127.0.0.1",
       port: process.env.HUBOT_XMPP_PORT || 5222,
       rooms: this.parseRooms("chatbot@conference.chatbot.airbus.com".split(',')),
